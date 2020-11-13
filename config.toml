@@ -25,7 +25,7 @@ copyright = "Geoff Cox"
 themeColor = "#fc2803"
 
 ## Set custom CSS and/or JS to override site defaults.
-#customCss = ["css/blog.css"]
+customCss = ["css/blog.css"]
 #customJs = ["js/blog.js"]
 
 gaMeasurementId = "G-ZMV9CF3YF6"
