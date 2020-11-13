@@ -11,7 +11,7 @@ enableEmoji = true
 
 [params]
 author = "Geoff Cox"
-#description = "My Blog"
+description = " "
 
 ## Set one of:
 gravatar = "redgeoff@gmail.com"
