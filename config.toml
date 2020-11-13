@@ -1,4 +1,5 @@
-baseURL = "http://redgeoff.com/"
+#baseURL = "https://redgeoff.com/"
+baseURL = "https://redgeoff.github.io/"
 languageCode = "en-us"
 title = "redgeoff"
 theme = "soho"
