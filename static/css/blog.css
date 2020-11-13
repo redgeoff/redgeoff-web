@@ -1,5 +1,5 @@
 
 /* Needed or else social icons have NO margin when deployed to redgeoff.com. (Issue is not present locally) */
-.social-icons {
+.social-icons a {
   margin: 3px;
 }
