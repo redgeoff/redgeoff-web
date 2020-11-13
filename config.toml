@@ -28,7 +28,7 @@ themeColor = "#fc2803"
 #customCss = ["css/blog.css"]
 #customJs = ["js/blog.js"]
 
-gaMeasurementId = "G-KBSTTMD2R2"
+gaMeasurementId = "G-ZMV9CF3YF6"
 
   ## Set as many as you want.
   [[params.socialIcons]]
