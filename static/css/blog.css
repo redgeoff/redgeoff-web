@@ -12,3 +12,7 @@ p {
   margin-top: 1em;
   margin-bottom: 1.5em;
 }
+
+a.tag-link {
+  margin: 0.2em;
+}
