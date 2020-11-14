@@ -1,5 +1,7 @@
 +++
 title = "Running a Free VPN Server on AWS"
+description = "Run OpenVPN on an AWS EC2 instance"
+images = ["/posts/vpn/network-with-vpn.png"]
 date = 2017-07-24T07:39:02-08:00
 draft = false
 categories = [
