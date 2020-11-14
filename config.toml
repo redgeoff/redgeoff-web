@@ -67,6 +67,12 @@ disqusShortname = "redgeoff"
   url = "/posts/"
 
   [[menu.main]]
+  name = "Publications"
+  identifier = "publications"
+  weight = 300
+  url = "/publications/"
+
+  [[menu.main]]
   name = "About"
   identifier = "about"
   weight = 300
