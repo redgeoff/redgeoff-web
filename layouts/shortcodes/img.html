@@ -1,0 +1,8 @@
+{{ with .Get "align" }}<div style="text-align: {{.}};">{{ end }}
+  <figure class="image">
+      {{ with .Get "link"}}<a href="{{.}}">{{ end }}
+          <img src="{{ .Get "src" }}" alt="{{ .Get "alt" }}"{{ with .Get "width"}} width="{{.}}"{{ end }} />
+      {{ if .Get "link"}}</a>{{ end }}
+      {{ with .Get "caption" }}<figcaption><small><i>{{.}}</i></small></figcaption>{{ end }}
+  </figure>
+{{ if .Get "align" }}</div>{{ end }}
