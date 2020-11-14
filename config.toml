@@ -30,6 +30,8 @@ customCss = ["css/blog.css"]
 
 gaMeasurementId = "G-ZMV9CF3YF6"
 
+disqusShortname = "redgeoff"
+
   ## Set as many as you want.
   [[params.socialIcons]]
   icon = "fa-github"

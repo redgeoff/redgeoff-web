@@ -189,3 +189,5 @@ $ /home/ubuntu/openvpn-server-vagrant/revoke-full.sh client
 ### Troubleshooting
 
 If your VPN client reports a _TLS handshake failed_ error then this is most likely because your VPN security group (Step 1) is incorrect. Make sure that you have the correct ports and protocols specified — a common problem is not specifying UDP for port 1194.
+
+{{< disqus >}}
