@@ -1,8 +1,10 @@
----
-title: "Publications/Talks"
-date: 2020-11-14
-draft: false
----
++++
+title = "Publications/Talks"
+description = "Run OpenVPN on an AWS EC2 instance"
+images = ["/images/geoff-giant-oyster.jpg"]
+date = "2020-11-14"
+draft = false
++++
 
 Date | Publication/Event | Post/Talk
 ---- | ----------- | ----
