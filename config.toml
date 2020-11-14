@@ -75,8 +75,14 @@ disqusShortname = "redgeoff"
   [[menu.main]]
   name = "About"
   identifier = "about"
-  weight = 300
+  weight = 600
   url = "/about/"
+
+  [[menu.main]]
+  name = "Music"
+  identifier = "music"
+  weight = 700
+  url = "/music/"
 
 [taxonomies]
   category = "categories"
