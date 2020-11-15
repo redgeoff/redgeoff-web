@@ -20,3 +20,12 @@ p {
 a.tag-link {
   margin: 0.2em;
 }
+
+li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+ol {
+  margin-bottom: 1.5em;
+}
