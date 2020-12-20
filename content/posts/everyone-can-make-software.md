@@ -115,11 +115,7 @@ For example, you can prevent the user from entering _nope@example.com_:
   validators: [
     {
       where: {
-        fields: {
-          email: {
-            value: 'nope@example.com'
-          }
-        }
+        'fields.email.value': 'nope@example.com'
       },
       error: {
         field: 'email',
@@ -134,12 +130,8 @@ Template parameters like `{{fields.email.value}}` can be used to inject the valu
 
 ```js
 where: {
-  retypePassword: {
-    fields: {
-      value: {
-        $ne: '{{fields.password.value}}'
-      }
-    }
+  'retypePassword.fields.value': {
+    $ne: '{{fields.password.value}}'
   },
   error: ...
 }
@@ -182,17 +174,15 @@ listeners: [
       {
         component: 'Set',
         if: {
-          fields: {
-            email: {
-              $or: [
-                {
-                  value: null
-                },
-                {
-                  value: ''
-                }
-              ]
-            }
+          'fields.email': {
+            $or: [
+              {
+                value: null
+              },
+              {
+                value: ''
+              }
+            ]
           }
         },
         name: 'fields.email.value',
@@ -213,17 +203,15 @@ listeners: [
       {
         component: 'Action',
         if: {
-          fields: {
-            email: {
-              $or: [
-                {
-                  value: null
-                },
-                {
-                  value: ''
-                }
-              ]
-            }
+          'fields.email': {
+            $or: [
+              {
+                value: null
+              },
+              {
+                value: ''
+              }
+            ]
           }
         },
         actions: [
