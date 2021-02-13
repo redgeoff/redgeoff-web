@@ -212,7 +212,7 @@ We define the form and hide the `covidOther` text field by default:
 }
 ```
 
-If the user selects `Other`, we toggle the `hidden` value of the `covidOther` field:
+If the user selects `Other`, we toggle the `hidden` boolean property of the `covidOther` field. The `$ne` operator is shorthand for _not equal_.
 
 ```js
 listeners: [
@@ -231,9 +231,9 @@ listeners: [
 ]
 ```
 
-### Why doesn't MSON support custom JS in template parameters?
+### Why doesn't MSON support custom JS in templates?
 
-To support custom JS in template parameters, it would require breaking two of MSON's core design principles:
+By now, you can probably see the power of Template Queries, but you may be wondering why MSON doesn't support custom JavaScript. To support custom JS in template parameters, it would require breaking two of MSON's core design principles:
 
 1. __Compilation by instantiation__ - Components are _compiled_ into JS objects by simply instantiating a JS object and setting the props dynamically. This method of _compilation_ allows us to avoid a transpilation step and makes it much easier to dynamically modify components.
 
