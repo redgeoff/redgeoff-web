@@ -20,7 +20,7 @@ tags = [
 
 Template Queries are dynamic templates constructed with MongoDB-style operators. They allow you to customize MSON components with less code and are very extensible.
 
-### What the heck is MSON?
+### OK, but what the heck is MSON?
 
 [MSON](https://github.com/redgeoff/mson) is a low-code way to create apps from JSON. The ultimate goal of [MSON](https://github.com/redgeoff/mson) is to allow anyone to develop software visually. You can also use pieces of [MSON](https://github.com/redgeoff/mson) to turbo charge your existing apps.
 
@@ -55,11 +55,11 @@ This query language also contains a construct for [pipeline aggregations](https:
 
 ### A basic MSON Template Query
 
-Let's take a look at an example where we extract the year from a user-provided date:
+Now that you have that background, let's take a look at an example where we extract the year from a user-provided date. Upon selecting a date with the date picker, you'll see that `Year` field is populated:
 
 {{< codesandbox id="mson-template-query-6zb3b" >}}
 
-Let's assume we have a form structure like:
+Let's step through this. First, we construct a form with `date` and `year` fields:
 ```js
 {
   component: "Form",
@@ -78,7 +78,7 @@ Let's assume we have a form structure like:
 }
 ```
 
-We listen for changes to the date value, extract the year and then set the value of the year field.
+Second, we listen for changes to the `date` value, extract the year and then set the value of the `year` field:
 
 ```js
 {
@@ -105,16 +105,18 @@ We listen for changes to the date value, extract the year and then set the value
 
 The `$toDate` operator is used to convert the date value, which is in milliseconds, to a date object. The `$year` operator is used to extract the year portion from the date. The `Set` action is native to MSON and is used to set the value of the `year` field.
 
+Pretty cool? Let's go a bit deeper...
+
 ### How can we make this reusable?
 
-You can create custom actions, which can then be reused:
-
-{{< codesandbox id="mson-custom-action-cziwj" >}}
-
-Let's assume that we want to create an `app.GetYear` action that retrieves the year from a DateField value:
+You can create custom actions, which can then be reused. Let's assume that we want to create an `app.GetYear` action that retrieves the year from a DateField value:
 ```js
 compiler.registerComponent("app.GetYear", {
+  // Extend Set, a core MSON component, that sets a
+  // property on another component
   component: "Set",
+
+  // Define the inputs to the custom action
   schema: {
     component: "Form",
     fields: [
@@ -132,6 +134,8 @@ compiler.registerComponent("app.GetYear", {
   //
   // name: "",
 
+  // Use the template query to extract the year
+  // from the date
   value: {
     $year: {
       $toDate: "{{date}}"
@@ -150,10 +154,13 @@ const form = compiler.newComponent({
     {
       event: "fields.date.value",
       actions: [
+        // Extract the year and pass it to the next action
         {
           component: "app.GetYear",
           date: "{{fields.date.value}}"
         },
+
+        // Use the extracted year to set the year field
         {
           component: "Set",
           name: "fields.year.value",
@@ -166,6 +173,10 @@ const form = compiler.newComponent({
   ]
 });
 ```
+
+Here is the completed example:
+
+{{< codesandbox id="mson-custom-action-cziwj" >}}
 
 ### Another example: a conditional survey question
 
@@ -185,18 +196,9 @@ We define the form and hide the `covidOther` text field by default:
       label: "My government's response to COVID-19 was...",
       fullWidth: true,
       options: [
-        {
-          label: "Good",
-          value: "good"
-        },
-        {
-          label: "Bad",
-          value: "bad"
-        },
-        {
-          label: "Other",
-          value: "other"
-        }
+        { label: "Good", value: "good" },
+        { label: "Bad", value: "bad" },
+        { label: "Other", value: "other" }
       ]
     },
     {
@@ -243,6 +245,6 @@ You can read more about this reasoning [here](https://github.com/redgeoff/mson/b
 
 Template Queries add a ton of capability to [MSON](https://github.com/redgeoff/mson) by providing another powerful way of customizing your [MSON](https://github.com/redgeoff/mson) components. And, they can be particularly useful in minimizing the code it takes to conditionally chain a series of actions.
 
-If you liked this post, please give it a clap or two. Happy building!
+If you liked this post, please give it a like or two. Happy building!
 
 {{< disqus >}}
