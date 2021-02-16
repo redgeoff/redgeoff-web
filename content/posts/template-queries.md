@@ -55,11 +55,11 @@ This query language also contains a construct for [pipeline aggregations](https:
 
 ### A basic MSON Template Query
 
-Now that you have that background, let's take a look at an example where we extract the year from a user-provided date. Upon selecting a date with the date picker, you'll see that `Year` field is populated:
+Now that you have that background, let's take a look at an example where we extract the year from a user-provided date. Upon selecting a date with the date picker, you'll see that the `Year` field is populated:
 
 {{< codesandbox id="mson-template-query-6zb3b" >}}
 
-Let's step through this. First, we construct a form with `date` and `year` fields:
+Let's step through this example. First, we construct a form with `date` and `year` fields:
 ```js
 {
   component: "Form",
