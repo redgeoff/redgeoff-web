@@ -511,8 +511,11 @@ import Form from 'mson/lib/form';
 import { TextField } from 'mson/lib/fields';
 import moment from 'moment';
 class MyComponent extends Component {
-  _create(props) {
-    super._create(props);
+  // className is needed as JS minification strips the constructor name
+  className = 'MyComponent';
+
+  create(props) {
+    super.create(props);
     this.set({
       // Define a currentDay property
       schema: new Form(
@@ -539,9 +542,12 @@ import compiler from 'mson/lib/compiler';
 import Action from 'mson/lib/actions/action';
 import Form from 'mson/lib/form';
 import { TextField } from 'mson/lib/fields';
+
 class MyAction extends Action {
-  _create(props) {
-    super._create(props);
+  className = 'MyAction';
+
+  create(props) {
+    super.create(props);
     this.set({
       schema: new Form(
         fields: [
@@ -552,6 +558,7 @@ class MyAction extends Action {
       )
     });
   }
+
   async act(props) {
     const form = new FormData();
     form.append('foo', this.get('foo'));
@@ -568,6 +575,7 @@ class MyAction extends Action {
     })
   }
 }
+
 compiler.registerComponent('MyAction', MyAction);
 ```
 
@@ -598,9 +606,12 @@ There is always parity between compiled and uncompiled components so that the sa
 ```js
 import Form from 'mson/lib/form';
 import { TextField, Email } from 'mson/lib/fields';
+
 class MyAccount extends Form {
-  _create(props) {
-    super._create(props);
+  className = 'MyAccount';
+
+  create(props) {
+    super.create(props);
     this.set({
       fields: [
         new TextField({
