@@ -1,0 +1,114 @@
+---
+title: We Migrated From AWS Lambda to ECS, but Hope to Eventually Migrate Back
+date: 2021-08-17T07:16:09-07:00
+draft: false
+description: The pitfalls of Lambda that made us switch away
+images:
+  - /posts/lambda-to-ecs/lambda-vs-ecs.png
+categories:
+  - Programming
+tags:
+  - aws
+  - serverless
+  - programming
+  - software development
+  - web development
+---
+
+The pitfalls of Lambda that made us switch away
+
+{{< figure src="/posts/lambda-to-ecs/lambda-vs-ecs.png" alt="Lambda vs ECS" attr="Image credit: [Attentie Attentie](https://unsplash.com/@attentieattentie) on [Unsplash](https://unsplash.com)" >}}
+
+_Author’s note: The views expressed in this post are my own and not necessarily those of my employer._
+
+---
+
+This is a story about how we migrated from Lambda to ECS because of a 2% error rate and limited concurrency controls. And, about how AWS has more recently fixed their error-rate issues and how enhancements to concurrency controls could win us back to Lambda.
+When I first started at [Knock](https://knockcrm.com) in 2018, we were running our entire stack on AWS EC2 instances that we were manually managing.
+
+As a result, it was painful to scale and maintain our infrastructure, and we were wasting money as we were unable to distribute our resource consumption. We were considering a managed container service like AWS Elastic Container Service (ECS) and AWS’s most recent serverless option, Lambda.
+
+AWS claimed that Lambda was a reliable, feature-rich environment that abstracts away any notion of having to manage a server, and we were excited about the prospect of just being able to focus on the code.
+
+Unfortunately, after a year of using Lambda in production, we observed Lambda was a relatively unreliable technology and when it was used to deliver customer-facing features, a 2% error rate in the AWS layer resulted in a very poor user experience. So, we decided to migrate some of our customer-facing Lambdas to ECS.
+
+Before we dive into the details, I’d like to clarify that this post is not a hate letter to AWS about Lambda.
+
+As you will read later, in 2020, AWS made improvements to Lambda networking, which has almost completely eroded the error rates we were seeing.
+
+This leaves just the concern of concurrency, which is something that can be mitigated in certain use cases, but not all.
+
+Because there is one shared concurrency pool for all your Lambdas, a burst of activity in any of your Lambdas can easily lead to significant throttling of mission-critical functionality, which results in an unacceptable user experience.
+
+Overall, I’m hopeful that AWS will eventually enhance the concurrency model for Lambda and remain committed to the promise of a world where engineers spend less time managing servers.
+
+### What Were We Running On Lambda?
+
+Let’s start by describing the types of services we had running on Lambda, as after all, we can sometimes tolerate latency and failures in certain use cases.
+
+The first class of services comprises a backend of RESTful APIs fronted by API Gateway and backed by a Lambda function for each route.
+
+We had both Node.js (Typescript) and Python code running in this layer. Although the programming language choices here have little impact on what we discuss in this post, they do impact cost and overall Lambda concurrency and latency.
+
+The main callout here is that most of these APIs were being called by frontends synchronously and thus, significant latency and failure is unacceptable as it manifests as downtime to the user.
+
+The second class of services mostly consists of background tasks that read messages from SQS queues and then perform IO operations on RDS instances and S3 buckets.
+
+In our case, nothing in this pipeline is too time-sensitive, so if these background tasks fail occasionally, a retry mechanism is enough to keep our system healthy and everyone happy.
+
+### Up to 2% Error Rates in Lambda From 2019–2020
+
+It wasn’t until we launched RESTful APIs in production that we began to notice that transient errors in the AWS layer were common for AWS Lambda. In particular, we started noticing errors in CloudWatch where a Lambda would timeout before it even ran any of our application-layer code. We knew the application code was not running as the very first thing our application code does is log the incoming request and these log statements from our application layer were missing. In other words, there was nothing that we could tune to prevent this from happening as the issue was occurring in the AWS layers. For example:
+
+> START RequestId: 56a12bf8–43eb-4b6c-8a20-c73fa2152c6b Version: $LATEST
+
+> **[Missing entries from application logs]**
+
+> END RequestId: 56a12bf8–43eb-4b6c-8a20-c73fa2152c6b
+
+> REPORT RequestId: 56a12bf8–43eb-4b6c-8a20-c73fa2152c6b Duration: 30019.42 ms Billed Duration: 30000 ms Memory Size: 1024 MB Max Memory Used: 77 MB
+
+> 2019–08–22T20:10:31.270Z 56a12bf8–43eb-4b6c-8a20-c73fa2152c6b **Task timed out after 30.02 seconds**
+
+On August 28th, 2019, We reached out to AWS via a support ticket and they confirmed that a 1–2% failure rate was somewhat normal:
+
+> Just to summarize the conversation, we talked about a 1%-2% failure rate not being outside of the realm of possibility in spikes, and the recommended implementation is backoff and retry on the client side.
+
+AWS recommended a retry mechanism, but in practice, the only way to detect these problems was by setting a more aggressive timeout and then retrying.
+
+Some of our legacy code in the critical code path can take several seconds to run during heavy times of load and Lambda cold starts used to be fairly significant.
+
+So, let’s say that we implemented a five-second timeout and then retried at this point. This would result in the user having to wait at least five seconds, which is unacceptable when it happens 2% of the time!
+
+Moreover, our backend is distributed, and therefore operations are not always atomic, meaning that there would be an increased possibility of duplicate requests when aborting the Lambda invocation and retrying the request.
+
+This was a major deal-breaker for us, so we decided to start migrating away from Lambda at the end of 2019.
+
+### Shared Concurrency Leads To Throttled Execution and Frustrated Users
+
+One could argue that the concurrency control capabilities of Lambda are severely lacking as there is a single per-region cap on Lambda currency per AWS account.
+
+This means that any bursting Lambda activity can cause customer-facing Lambdas to be throttled. Here, I’m defining customer-facing Lambdas as those fielding synchronous requests from our users via a UI.
+
+In other words, Lambda-powered background tasks can starve these customer-facing Lambdas and can essentially result in your app becoming unresponsive. This manifests as an outage to your users and is completely unacceptable when it occurs frequently.
+
+As illustrated in the next set of graphs, you can see that spikes in customer-facing errors roughly correlate to the spikes in our account’s Lambda concurrency:
+
+{{< figure src="/posts/lambda-to-ecs/concurrent-executions.png" alt="Errors from hitting max concurrency" caption="Errors from hitting max concurrency. Image credit: Author" >}}
+
+This cannot be easily prevented as there is a limit of 1,000 concurrent Lambdas on our account, and the only way to bound Lambda executions is by reserving part of this pool of 1,000. In other words, each time you reserve concurrency for a Lambda, you forever take away potential concurrency for your other Lambdas, resulting in an awkward juggling act where you have some Lambdas that are statically bounded and others that are not.
+
+If you are familiar with AWS Elastic Container Service (ECS) or Elastic Kubernetes Service (EKS), you’ll know that it is fairly trivial to control the number of containers (worker pool) by scaling up or down the number of tasks running for a service. In other words, you have full control over how you allocate your resources and aren’t locked into a primitive per-function concurrency model — like you are with Lambda. In a later section in this post, we’ll investigate how I think AWS could improve its concurrency controls to facilitate better resource sharing.
+
+Given Lambda’s basic concurrency controls, is there anything we can do to prevent throttling our user-facing Lambdas? Yes, you can:
+
+1. temporarily constrain the concurrency of more Lambdas with reserved concurrency
+1. file a request with AWS support to bump up your concurrency limit from 1,000
+1. increase the batch size on your SQS reads to a maximum of 10. This means that it takes fewer Lambdas to service the same SQS traffic. Let’s just hope you structured your code to work this way before your Lambdas were throttled
+1. set the reserved or provisioned concurrency for user-facing Lambdas. This is fine if you only have a few Lambdas, but if you have one for each RESTful API route, you could have hundreds of Lambdas and you’ll quickly get into a situation where you actually lock up all of your concurrency. For example, imagine you have just 10 Lambdas/routes and set the reserved concurrency at 20 for each of these Lambdas, resulting in a total reserved concurrency of 20 x 10 = 200 (recall you have a max of 1,000 for your entire AWS account). That number can quickly add up and what’s more is that each of these Lambdas is now bound to a max concurrency of 20, meaning that your user-facing Lambdas aren’t going to scale as your traffic increases, which is a big reason why you even use Lambda in the first place.
+1. stand up a SQS queue in front of API endpoints for things that are resource-intensive and/or can be processed asynchronously, e.g., email sending and report generation. This allows the customer-facing Lambdas to complete their execution faster as the resource-intensive work is deferred. Although this is typically a good pattern as it reduces latency to your user, it’s not always enough to keep your Lambda concurrency low enough to prevent throttling and it may just increase the concurrency among your background tasks if you are using Lambda to run your background tasks.
+1. Move your user-facing Lambdas to a different region so that you have access to a different concurrency pool of 1,000. This can greatly increase the complexity of your deployments and it may even mean that other services like Cognito, DynamoDB, SQS, etc., would need to be moved to another region.
+
+A lot of these mitigations are good things to consider when using Lambda, but they don’t solve the root problem of very limited concurrency controls leading to throttling. If you use these mitigations, you’re basically just incurring tech debt that you’ll be on the hook for later.
+
+Poor error rates and unavoidable throttling? These were both deal-breakers, so we had no choice but to migrate away from Lambda.
