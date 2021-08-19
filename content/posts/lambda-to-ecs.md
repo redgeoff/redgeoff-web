@@ -112,3 +112,187 @@ Given Lambda’s basic concurrency controls, is there anything we can do to prev
 A lot of these mitigations are good things to consider when using Lambda, but they don’t solve the root problem of very limited concurrency controls leading to throttling. If you use these mitigations, you’re basically just incurring tech debt that you’ll be on the hook for later.
 
 Poor error rates and unavoidable throttling? These were both deal-breakers, so we had no choice but to migrate away from Lambda.
+
+### Refactoring Our Code So That It Can Run On Both Lambda And ECS
+
+Now that we had decided to migrate away from Lambda, we wondered if there was a way to make a minimal set of changes to our code so that it could also run in a Docker environment.
+
+We chose AWS’s Elastic Container Service (ECS) to run our containers as it is relatively easy to manage and something that our DevOps team had the bandwidth to support. Fortunately, we noticed that the Lambda handlers we already implemented utilize a nice abstraction, which could be used to translate from a Docker-supported framework to a Lambda one and vice-versa. All we needed to do was create a wrapper that would:
+
+1. translate the ExpressJS request payload to the event payload needed by the Lambda handler
+1. translate the Lambda response to an ExpressJS response
+1. use a wrapper that would allow us to reuse all our existing Lambda handler code and run it on top of the ExpressJS framework! We chose to go with ExpressJS to build the RESTful API as we were using Node.js and ExpressJS is a battle-tested framework. The following implementation is in JS but the pattern will work with any web framework and any programming language. (Our actual implementation is in TypeScript.)
+
+Let’s take a look at some code to see how we did this. Consider a simplified version of a Lambda handler that implements a `POST /lead/:leadId` route, which accepts a JSON body of `{ name, email }`:
+
+```js
+import leadService from './lead-service';
+
+// Define a handler for `PUT /lead/:leadId` that accepts the request body
+// payload `{ name, email }`
+const handler = async (event) => {
+  // Parse the request parameters
+  const { name, email } = JSON.parse(event.body);
+  const { leadId } = event.pathParameters;
+
+  // Assume this is the service-layer code that actually performs the
+  // updating of the lead
+  await leadService.update(leadId, name, email);
+
+  // Return a 200 success code and the full lead
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      id: leadId,
+      name,
+      email
+    })
+  };
+}
+
+export default handler;
+```
+
+We created a `lambdaToExpress` function that translates from ExpressJS to Lambda and back again, using the following code:
+
+```js
+// Convert from a Lambda to an ExpressJS handler
+const lambdaToExpress = async (handler) => {
+  return async (req, res) => {
+    // Repackage the express parameters as an event object for the Lambda
+    const event = {
+      body: JSON.stringify(req.body),
+      headers: req.headers,
+      queryStringParameters: req.query,
+      pathParameters: req.params
+    };
+
+    const handlerRes = await handler(event);
+
+    // Instruct express to use the response from the Lambda 
+    res.status(handlerRes.statusCode).json(JSON.parse(handlerRes.body))
+  };
+}
+
+export default lambdaToExpress;
+```
+
+Then, we registered our ExpressJS routes using our new wrapper. Here is its code:
+
+```js
+import express from 'express';
+import cors from 'cors';
+import handler from './lambda';
+import lambdaToExpress from './lambda-to-express';
+
+const PORT = 3000;
+const app = express();
+
+app.use(cors());
+app.use(express.json()); // Parse JSON bodies
+
+app.put('/lead/:leadId', lambdaToExpress(handler));
+
+app.listen(PORT);
+```
+
+With just a few lines of code, we enhanced our single codebase to support both Lambda and ExpressJS. One thing to note is that both the `lambdaToExpress` and `handler` functions are performing a `JSON.stringify()` and `JSON.parse()`, which adds a tiny bit of extra overhead. That being said, these operations are very quick and unnoticeable in the grand scheme of things.
+
+The code was all set, but what about anything provided by AWS’s API Gateway?
+
+As part of our API is external-facing, we needed to support rate-limiting. To achieve this, we incorporated [node-rate-limiter-flexible](https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#authorized-and-not-authorized-users) (backed by ElasticCache) to implement rate-limiting. And, we simply added this rate-limiting check to our `lambdaToExpress` wrapper to implement this in a single place.
+
+We were using the [Serverless Framework](https://www.serverless.com/) to deploy our Lambdas, and you could probably use this framework to deploy code to ECS, but we find [Terraform](https://www.terraform.io/) to be a slightly more versatile tool for configuring non-serverless infrastructure and were already using Terraform to deploy other microservices.
+
+So, we created [Terraform Modules](https://www.terraform.io/docs/language/modules/develop/index.html) alongside our `serverless.yml` configuration and deployed them with [Jenkinsfiles](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/).
+
+And now, we were running on ECS!
+
+We have been happily running a portion of our RESTful API backend on AWS Lambda for over a year and have found that we have reduced our compute costs by 90%! In a future post, I’ll dive into a cost comparison between Lambda and ECS.
+
+### Lambda Reduced Its Error Rate From 2% To 0.0000625%
+
+If you recall from earlier, in August 2019, we found that AWS Lambda could suffer from an error rate of up to 2%!
+
+In September 2019, AWS released a blob post touting [improvements to networking for Lambda](https://aws.amazon.com/blogs/compute/announcing-improved-vpc-networking-for-aws-lambda-functions/) that would reduce latency incurred with cold starts. We were very excited about this news as it meant that AWS had acknowledged the problem and was actively working on a fix.
+
+We had migrated some of our backends from Lambda to ECS but had a lot of remaining functionality on Lambda.
+
+In 2021, we performed another analysis and found that the latest version of Lambda was resulting in an error rate of only 0.0000625%. This is a significant improvement from 2%!
+
+Here is the analysis we did for our auth-service, a RESTful API responsible for authentication and authorization functionality in our system. In a seven-day period, the auth-service had about 1.6 million invocations and only one resulted in a timeout.
+
+{{< figure src="/posts/lambda-to-ecs/auth-service-invocations.png" alt="auth-service invocations" caption="auth-service invocations. Image credit: Author" >}}
+
+{{< figure src="/posts/lambda-to-ecs/auth-service-errors.png" alt="auth-service errors" caption="auth-service invocations. Image credit: Author" >}}
+
+With error rates as low as this, our error rate concern with user-facing Lambdas has been eliminated! But what about the lingering concern with concurrency controls?
+
+### How Could AWS Improve Its Concurrency Controls?
+
+If you recall, we ended up performing many of the concurrency mitigations mentioned above and moved a number of our Lambdas to ECS.
+
+Afterward, we were left with a relatively comfortable set of about 200 Lambdas, and as a result, bursting concurrency is now less of a concern.
+
+That being said, we now avoid using Lambda for any new user-facing services. And, we generally avoid using it for substantial background jobs as we are worried that excessive use will result in throttling our few remaining user-facing Lambdas.
+
+Despite this current strategy, I’m hoping the day will come when AWS implements a more feature-rich implementation of Lambda concurrency controls that better mimics that of an ECS environment. Here are some enhancements that would make a huge difference:
+
+#### Max Concurrency
+
+Let’s define the Max Concurrency of a Lambda as a setting for the max concurrent invocations of a specific Lambda. This value is not the same as Reserved Concurrency in that the value of Max Concurrency wouldn’t subtract from the overall concurrency available for the AWS account.
+
+Here’s an example: assume Lambda A has a Max Concurrency of 100 and your account has a global max concurrency of 1,000 (the AWS default).
+
+Lambda A would not be throttled until there are over 100 instances of Lambda A running concurrently. Other Lambdas, e.g., Lambda B/C, can still consume up to 1,000 instances, if Lambda A has 0 running instances.
+
+This in essence means that no matter what, Lambda A cannot consume more than 100 instances of the total 1,000, but doesn’t require us to set aside 100 instances from our total 1,000 for Lambda A.
+
+This setting is somewhat akin to having an ECS service that can burst to an upper bound of max tasks but doesn’t require us to reserve a portion of our cluster, even if that service is not running all the instances.
+
+#### Group Max Concurrency
+
+We consider a service to be a group of related Lambdas. For example, consider 10 Lambdas that comprise 10 RESTful endpoints of a service. Or, 10 Lambdas that define the workers of an ETL pipeline. Often, we’d like to define an upper bound on concurrency for a group of Lambdas, e.g., we don’t want our ETL pipeline to consume more than 100 out of our total of 1,000 current Lambda invocations.
+
+A Group Max Concurrency could effectively be accomplished by first allowing you to tag Lambdas to be part of a group. Second, you could then set the Group Max Concurrency for that group. Or AWS could even reuse the concept of a “stack” and have a Stack Max Concurrency.
+
+This Group Max Concurrency is similar to how you may have an ECS service where each container is performing multiple (a group of) operations, e.g., a web server fielding requests for multiple RESTful API endpoints.
+
+#### Ability to increase account-wide Max Concurrency without contacting AWS support
+
+Some will point out that you can always increase your total Lambda concurrency just by contacting AWS support.
+
+In fact, we actually did this to bump our Full account concurrency from 1,000 to 2,000. AWS support was pretty amenable to this, but it took a couple of days for them to make the change and we needed to provide justification.
+
+All the while, our user-facing Lambdas were throttled, and our users were upset. I’ve even heard of companies being able to get AWS to increase their max concurrency to hundreds of thousands of Lambdas.
+
+That’s great, but why is special approval even needed? Isn’t the fact that a company is willing to pay for the increased usage enough?
+
+To compare with ECS, this max-concurrency-per-account setting is similar to how you can easily customize the number of nodes in an ECS cluster, which effectively defines a max number of ECS tasks that can be run concurrently.
+
+And of course, ECS has autoscaling capabilities that allow you to scale your cluster based on your own needs. None of this scaling requires any special approval from AWS.
+
+---
+
+If AWS were able to implement these controls, it would bring AWS Lambda’s concurrency controls to parity with those of ECS and EKS, and I’d once again advocate for using Lambda in many more areas of our system.
+
+### When Does Lambda Shine?
+
+Even with its limited concurrency controls, Lambda shines in the following areas:
+
+1. For background tasks, e.g., ones that read off SQS. Sure, you can stand up something like [celery](https://docs.celeryproject.org/en/stable/) or [bull](https://github.com/OptimalBits/bull) to get something similar, but wiring up a Lambda to an SQS queue or one of the many other AWS triggers, is such a beautifully simple thing. Note: Lambda has a max timeout of 15 minutes, so it is only suitable for running relatively quick tasks.
+1. When you have other Lambdas that don’t burst to consume all of the available concurrency, such as when you have a relatively small amount of Lambda activity.
+1. When you wish to optimize autoscaling so that you only pay for what you use. Lambda automatically scales up and down at the single invocation layer so that you can save a ton of money during low traffic periods
+1. As a place to run your code without the need to manage infrastructure
+
+### Conclusion
+
+The promise of serverless — where developers don’t need to manage infrastructure — is very compelling, and I don’t want to let this dream die.
+
+AWS has fixed its error-rate problem with Lambdas, but Lambda is still lacking better concurrency controls.
+
+Until these concurrency controls are enhanced, you’ll probably want to use ECS or EKS for your user-facing services, if your Lambda usage is significant and will lead to throttling.
+
+I suspect that AWS will continue to evolve the Lambda technology to the point where it becomes a strong alternative to ECS and when it does, I’ll once again tout the virtues of using Lambda everywhere.
+
+Thanks for reading.
