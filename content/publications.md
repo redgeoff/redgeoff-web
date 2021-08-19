@@ -8,6 +8,7 @@ draft = false
 
 Date | Publication/Event | Post/Talk
 ---- | ----------- | ----
+Aug 9, 2021 | BetterProgramming | [We Migrated From AWS Lambda to ECS, but Hope to Eventually Migrate Back](https://betterprogramming.pub/we-migrated-from-aws-lambda-to-ecs-but-hope-to-eventually-migrate-back-8ad25a60501b)
 Nov 5, 2019 | CascadiaJS | [MSON: Everyone Can Make Software](https://docs.google.com/presentation/d/1FQpavXhQSPJ2Y4YUEObBrZFjmfGdasqNV7B3290Vyms). [Talk: MSON Lang - Everyone Can Make Software](https://2019.cascadiajs.com/speakers/geoff-cox)
 Jul 31, 2019 | SeattleReactJS | [Autogenerating forms in React using JSON](https://www.youtube.com/watch?v=rh_LgA8zlRI)
 Nov 8, 2018 | SeattleJS | [MSON Lang: Building An App Using JSON](https://www.meetup.com/seattlejs/events/dczsvkyxpblb/)
