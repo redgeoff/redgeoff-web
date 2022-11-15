@@ -23,11 +23,11 @@ This tutorial will take you through the steps of setting up an EC2 instance runn
 
 AWS has an awesome firewall built into its core services, which can easily be used to make sure that only certain ports are open to the outside world. One extra step that we can take is to run a VPN server that serves as the gateway to our protected AWS resource, e.g. EC2, RDS, etc... We can then shutdown direct access to our AWS resources just by revoking access via our VPN server. This is very useful if you need to revoke access for a former employee.
 
-AWS now offers a [managed VPN Service](https://aws.amazon.com/vpn/), but this service costs at least $72 a month and is even more expensive when your VPN serves a lot of traffic and users. A lot of smaller organizations don't need all the features of the managed service and instead can run their own VPN server for just the cost of an EC2 instance. You can even use the free tier so that you don't have to pay anything for the EC2 instance for the 1st year.
+AWS now offers a [managed VPN Service](https://aws.amazon.com/vpn/), but this service costs at least $72 a month and is even more expensive when your VPN serves a lot of traffic. A lot of smaller organizations don't need all the features of the managed service and instead can run their own VPN server for just the cost of an EC2 instance. You can even use the free tier so that you don't have to pay anything for the EC2 instance for the 1st year.
 
 ### Step 1 — Create the VPN Security Group
 
-Overview: security groups allow your servers to communicate with each other in a private cloud while exposing specific ports to the world. We are going to create a security group to allow VPN access to our VPN server. We will assume that all your other EC2 instances are members of the default security group and that the default security group does not allow access from the outside world.
+Overview: security groups allow your servers to communicate with each other in a private cloud while exposing specific ports to the world. We are going to create a security group to allow VPN access to our VPN server. We will assume that all your other AWS resources are members of the default security group and that the default security group does not allow access from the outside world.
 
 Log in at [https://aws.amazon.com](https://aws.amazon.com), type _EC2_ in the search box, and click on the target to go to the EC2 Dashboard.
 
@@ -39,7 +39,7 @@ Click _Create security group_:
 
 {{< figure src="/posts/vpn-2022/create-security-group.png" alt="Create Security Group" align="center" attr="Image credit: Author" >}}
 
-Enter a name and description of _vpn_ and specify inbound rules on ports _22_, _443_, _943_, and _1194_. Note: the protocol for port _1194_ is **UDP**.
+Enter a name and description of _vpn_ and specify the following inbound rules on ports _22_, _443_, _943_, and _1194_. Note: the protocol for port _1194_ is **UDP**.
 
 {{< figure src="/posts/vpn-2022/inbound-rules.png" alt="Ports" align="center" attr="Image credit: Author" >}}
 
@@ -55,9 +55,11 @@ Select Ubuntu (you can of course select almost any other OS that runs OpenVPN, b
 
 {{< figure src="/posts/vpn-2022/ubuntu-22.png" alt="Ubuntu 22" align="center" attr="Image credit: Author" >}}
 
-Select `t2.nano`:
+Select _t2.micro_:
 
 {{< figure src="/posts/vpn-2022/t2-nano.png" alt="t2 nano" align="center" attr="Image credit: Author" >}}
+
+Note: you can use a nano instance instead of a micro instance, but nano instances are not eligible for the free tier.
 
 In the _Network settings_ section, select your default VPC and disable the auto-assign public IP option. Then, select both your default security group and the security group that you created above for the VPN.
 
@@ -77,7 +79,7 @@ Select _Stop_ and click _Save_. This is needed as otherwise, your VPN server wil
 
 ### Step 4 — Create an Elastic IP Address
 
-Overview: when an EC2 instance is stopped and restarted, the Public IP address changes. We want the IP address of our VPN Server to remain static so we’ll use an Elastic IP Address.
+Overview: when an EC2 instance is stopped and restarted, the Public IP address changes. We want the IP address of our VPN server to remain static so we’ll use an Elastic IP Address.
 
 From the E2C Dashboard, select _Elastic IPs_:
 
@@ -93,7 +95,7 @@ Select the IP address you just created and click _Associate Elastic IP address_:
 
 {{< figure src="/posts/vpn-2022/associate-elastic-ip.png" alt="Associate Elastic IP address" align="center" attr="Image credit: Author" >}}
 
-Then select the Elastic IP and click _Associate address_ from the drop down menu.
+Then, select the Elastic IP and click _Associate address_ from the drop down menu.
 
 Select the EC2 instance you created above and click _Associate_:
 
@@ -115,13 +117,13 @@ $ cd openvpn-server-vagrant
 $ cp config-default.sh config.sh
 ```
 
-Edit config.sh and enter in your configuration. Note: PUBLIC_IP should be equal to the Elastic IP Address that you created above.
+Edit config.sh and enter in your configuration. Note: _PUBLIC_IP_ should be equal to the Elastic IP Address that you created above.
 
 ```
 $ nano config.sh
 ```
 
-Switch to root
+Switch to root:
 
 ```
 $ sudo su -
@@ -143,7 +145,7 @@ At this point, the OpenVPN server is running.
 
 ### Step 6 — Add the Route
 
-Routes must be added to the server so that your team’s clients know which traffic to route to the VPN Server.
+Routes must be added to the server so that your team’s clients know which traffic to route to the VPN server.
 
 You can determine the proper subnet by returning to your list of EC2 instances, clicking on a target instance and identifying the Private IP.
 
@@ -151,13 +153,13 @@ You can determine the proper subnet by returning to your list of EC2 instances, 
 
 Your network will be the first 2 parts of the Private IP appended with zeros, e.g. _172.31.0.0_
 
-On the VPN Server edit _/etc/openvpn/server/server.conf_ and add something like the following:
+On the VPN server edit _/etc/openvpn/server/server.conf_ and add something like the following:
 
 ```
 push "route 172.31.0.0 255.255.0.0"
 ```
 
-Then restart the VPN Server with:
+Then, restart the VPN server with:
 
 ```
 $ systemctl restart openvpn-server@server.service
@@ -179,11 +181,11 @@ You’ll then find a configuration file at
 ~/client-configs/files/client-name.ovpn
 ```
 
-You will want to provide this file to the individual on your team who will be connecting to your VPN. SCP is handy for downloading this .ovpn file from your VPN Server.
+You will want to provide this file to the individual on your team who will be connecting to your VPN. SCP is handy for downloading this .ovpn file from your VPN server.
 
-Your team can use one of various VPN clients such as [Tunnelblick](https://tunnelblick.net/) (OS X) and [OpenVPN](https://openvpn.net/community-downloads/) (Linux, iOS, Android and Windows). After installing one of these clients they should be able to set up the VPN config just by double clicking on the .ovpn file.
+Your team can use one of various VPN clients such as [Tunnelblick](https://tunnelblick.net/) (OS X) and [OpenVPN](https://openvpn.net/community-downloads/) (Linux, iOS, Android and Windows). After installing one of these clients, they should be able to set up the VPN config just by double clicking on the .ovpn file.
 
-Note: once connected to the VPN, your users will want to use the Private IPs of your EC2 instances. You’ll probably want to use Route 53 to create subdomain records that route to the Private IPs.
+Note: once connected to the VPN, your users will want to use the Private IPs of your AWS resources. You may want to use _nslookup_ to lookup the IP address from the AWS custom domain names provided by AWS. You’ll probably want to use Route 53 to create subdomain records that route to the Private IPs.
 
 ### Step 8 — Revoke Access to Your VPN
 
