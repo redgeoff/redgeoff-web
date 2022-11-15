@@ -2,6 +2,7 @@
 
 ## Run locally
 
+`brew install hugo`
 `hugo server`
 
 ## Create new post
