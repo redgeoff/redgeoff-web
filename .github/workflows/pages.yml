@@ -4,6 +4,7 @@ name: hugo publish
 #   push:
 #     branches:
 #     - main
+on: [pull_request]
 
 jobs:
   build-deploy:
