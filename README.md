@@ -2,6 +2,9 @@
 
 ## Run locally
 
+- `git clone git@github.com:redgeoff/redgeoff-web`
+- `cd redgeoff-web`
+- `git submodule update --init --recursive`
 - `brew install hugo`
 - `hugo server`
 
