@@ -8,6 +8,7 @@ draft = false
 
 Date | Publication/Event | Post/Talk
 ---- | ----------- | ----
+Jul 7, 2023 | HackerNoon | [My Journey with ChatGPT for Business: Unleashing the Power of AI for Software Engineers](https://hackernoon.com/my-journey-with-chatgpt-for-business-unleashing-the-power-of-ai-for-software-engineers)
 Aug 9, 2021 | BetterProgramming | [We Migrated From AWS Lambda to ECS, but Hope to Eventually Migrate Back](https://betterprogramming.pub/we-migrated-from-aws-lambda-to-ecs-but-hope-to-eventually-migrate-back-8ad25a60501b)
 Nov 5, 2019 | CascadiaJS | [MSON: Everyone Can Make Software](https://docs.google.com/presentation/d/1FQpavXhQSPJ2Y4YUEObBrZFjmfGdasqNV7B3290Vyms). [Talk: MSON Lang - Everyone Can Make Software](https://2019.cascadiajs.com/speakers/geoff-cox)
 Jul 31, 2019 | SeattleReactJS | [Autogenerating forms in React using JSON](https://www.youtube.com/watch?v=rh_LgA8zlRI)
