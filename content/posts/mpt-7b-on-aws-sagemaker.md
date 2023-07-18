@@ -208,7 +208,7 @@ As soon as you have finished testing the model, you’ll want to head back to yo
 
 In terms of performance, my preliminary tests suggest that MPT-7B's results might not be as good as ChatGPT’s. It does a decent job answering questions like _What is the capital of France?_, _Explain to me the difference between nuclear fission and fusion_, and _Write python code that converts a csv into pdf_. But for questions like_What is the capital of Belize?_ it fails pretty horribly:
 
-{{< figure src="/posts/mpt-7b-on-aws-sagemaker/capital-of-belize.png" alt="What is the capital of Belize?" align="center" attr="What is the capital of Belize?. Image credit: Author" >}}
+{{< figure src="/posts/mpt-7b-on-aws-sagemaker/capital-of-belize.png" alt="What is the capital of Belize?" align="center" attr="What is the capital of Belize? Image credit: Author" >}}
 
 I am currently collecting more data and will conduct a comprehensive comparative analysis in a follow-up blog post. In that post, I will compare the question and answer performance of MPT-7B, MPT-30B, Falcon-40b, and ChatGPT using actual conversation history.
 
