@@ -81,9 +81,9 @@ Head on over to the notebook at [MPT-7B on AWS SageMaker.ipynb](https://colab.re
 
 {{< figure src="/posts/mpt-7b-on-aws-sagemaker/colab-notebook.png" alt="The notebook on Google Colab" align="center" attr="The notebook on Google Colab. Image credit: Author" >}}
 
-In this notebook you’ll notice two main code blocks. The first block loads the MPT-7B tokenizer and model:
-
 {{< figure src="/posts/mpt-7b-on-aws-sagemaker/download-colab-notebook.png" alt="Download the notebook" align="center" attr="Download the notebook. Image credit: Author" >}}
+
+In this notebook you’ll notice two main code blocks. The first block loads the MPT-7B tokenizer and model:
 
 ```python
 from torch import cuda, bfloat16
