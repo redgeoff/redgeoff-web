@@ -15,10 +15,6 @@
 
   {{ partial "tags.html" . }}
 
-  {{ if (and (ne .Params.DisableShare true) (ne .Params.disable_share true)) -}}
-  {{ partial "share.html" . }}
-  {{- end }}
-
   {{/* Disqus disabled — uncomment to re-enable site-wide comments
   {{ if (and .Site.Config.Services.Disqus.Shortname (ne .Params.DisableComments true) (ne .Params.disable_comments true)) -}}
   <div class="comments">
