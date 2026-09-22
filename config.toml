@@ -1,6 +1,6 @@
 baseURL = "https://redgeoff.com/"
 #baseURL = "https://redgeoff.github.io/"
-languageCode = "en-us"
+locale = "en-us"
 title = "redgeoff"
 theme = "soho"
 
@@ -83,6 +83,13 @@ disqusShortname = "redgeoff"
   identifier = "music"
   weight = 700
   url = "/music/"
+
+[services]
+  [services.disqus]
+  shortname = "redgeoff"
+
+  [services.googleAnalytics]
+  id = "G-ZMV9CF3YF6"
 
 [taxonomies]
   category = "categories"
