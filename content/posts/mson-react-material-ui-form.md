@@ -166,5 +166,3 @@ This post only touches on a small piece of what you can do using [MSON](https://
 
 If you are using React and Material-UI, you can speed up your app development by autogenerating your forms from JSON. This can be particularly useful if you need to bootstrap an app quickly and don’t want to have to worry about building a UI from scratch.
 If you liked this post, please give it a clap or two. Happy [autogenerating!](https://github.com/redgeoff/mson)
-
-{{< disqus >}}
