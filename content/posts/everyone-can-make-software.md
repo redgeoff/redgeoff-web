@@ -793,6 +793,3 @@ The MSON compiler is completely written in JS and runs in both the browser and o
 I also plan on monetizing this idea by developing out mson.co, which will host a UI that anyone can use to make software. The UI will read, modify and write MSON behind the scenes and a back end will automatically be created based on your component definitions. And for developers, you’ll have the option of using as much of the mson.co stack as you wish, e.g. you could bootstrap your app using the MSON UI Builder and then replace/customize the front end with your favorite technologies (the mson.co back end is exposed via a GraphQL API). Or, you can use MSON on just the front end and create your own custom back-end API.
 
 I hope you enjoyed reading this post and I would love to hear your thoughts.
-
-
-{{< disqus >}}

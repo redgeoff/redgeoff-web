@@ -246,5 +246,3 @@ You can read more about this reasoning [here](https://github.com/redgeoff/mson/b
 Template Queries add a ton of capability to [MSON](https://github.com/redgeoff/mson) by providing another powerful way of customizing your [MSON](https://github.com/redgeoff/mson) components. And, they can be particularly useful in minimizing the code it takes to conditionally chain a series of actions.
 
 If you liked this post, please give it a like or two. Happy building!
-
-{{< disqus >}}

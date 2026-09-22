@@ -30,7 +30,7 @@ customCss = ["css/blog.css"]
 
 gaMeasurementId = "G-ZMV9CF3YF6"
 
-disqusShortname = "redgeoff"
+# disqusShortname = "redgeoff"
 
   ## Set as many as you want.
   [[params.socialIcons]]
@@ -85,8 +85,8 @@ disqusShortname = "redgeoff"
   url = "/music/"
 
 [services]
-  [services.disqus]
-  shortname = "redgeoff"
+  # [services.disqus]
+  # shortname = "redgeoff"
 
   [services.googleAnalytics]
   id = "G-ZMV9CF3YF6"
