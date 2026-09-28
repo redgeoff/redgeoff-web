@@ -1,6 +1,6 @@
 ---
 title: "I let AI agents write most of a live-trading codebase. Here's the gate that made it safe."
-date: 2026-09-28T09:00:00-07:00
+date: 2026-09-28T16:50:00-07:00
 draft: false
 description: "About 1,600 agent-written pull requests on a system that trades real money. Tests became the gate, and the interesting part is the three times a green build lied."
 images:
@@ -105,8 +105,9 @@ row it wanted. A data loader that wasn't thread-safe and corrupted a shared inde
 under load. Each one showed up first as "that test fails sometimes."
 
 The weekly set exists because a flaky gate is worse than no gate. If a test fails once
-every thirty runs, and thirty agent PRs land in a week, something red is always on
-screen and you start ignoring red. Hunting flakes is not hygiene here. It is what
+every thirty runs, and twenty agent PRs land in a week, that one test goes red most
+weeks. Have a few like it and something red is always on screen, and you start
+ignoring red. Hunting flakes is not hygiene here. It is what
 keeps the gate meaningful.
 
 ## The tests that matter are about money, not functions
@@ -301,10 +302,13 @@ The per-PR suite takes about ten minutes. That is the tax on every change, and i
 the number I would defend hardest: ten minutes is short enough that I never route
 around it, and long enough to run tests that touch a database and a fake broker.
 
-The machine bill is about 3,000 GitHub Actions minutes a month, of which roughly $20
-is paid on top of what's included. The agents themselves are Claude Pro and Cursor
-Pro, $20 each. So the tools that wrote most of this codebase cost about the same as
-the compute spent checking them, and neither is what the project actually cost.
+The machine bill is every one of the 3,000 GitHub Actions minutes my plan includes,
+plus roughly $20 a month for extra minutes on top. The agents themselves are Claude
+Pro and Cursor Pro, $20 each. I also paid $40 a month for Copilot until GitHub moved
+it to per-token billing, which would have raised my bill more than tenfold, so that
+work moved to Claude Code and Cursor. So the tools that wrote most of this codebase
+cost tens of dollars a month, like the compute spent checking them, and neither is
+what the project actually cost.
 
 What it actually cost is fixtures and flakes. Writing a mock broker that fails in
 realistic ways, maintaining a self-contained dataset so model training can be tested
