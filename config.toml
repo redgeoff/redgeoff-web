@@ -21,6 +21,9 @@ copyright = "Geoff Cox"
 # license = "CC BY-SA 4.0"
 # licenseURL = "https://creativecommons.org/licenses/by-sa/4.0"
 
+## Brevo signup form shown at the end of each post.
+newsletterFormURL = "https://bffb2dc6.sibforms.com/v2/serve/MUIFAPjHosAP8284TaGRBVW61iYKp1ogvyXwlunHvyIwETQiAyVXU9IxSqnckuMu0k1QxJpCdyCfQpz-2Dvh4ZliV5G3Tngq6jxlwaFgc2FsU8mpdyWnGJlRB8-4Qkx9J35Auq0OmBzuU51WjSvV2yFaIcROdD5DJzojJAMaU7_TCfrZ8XQvzQvM7560FqwweK9gOA9CeVRkSUHBVA=="
+
 ## Set custom theme color.
 themeColor = "#fc2803"
 
