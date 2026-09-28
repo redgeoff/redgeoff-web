@@ -173,7 +173,7 @@ written in the same sitting from the same misunderstanding.
 
 The effect was that each stock dividend roughly halved the adjusted price, and it
 compounded across events. One symbol with nine of them came out deflated by about
-500×, turning a real price history into a fake ramp of more than a thousand-fold
+490×, turning a real price history into a fake ramp of more than a thousand-fold
 over the period. And because every price stayed between a few cents and a few
 hundred dollars, a check for implausible price levels would not have flagged it
 either.
