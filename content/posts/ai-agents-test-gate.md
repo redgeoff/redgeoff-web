@@ -4,7 +4,7 @@ date: 2026-09-28T09:00:00-07:00
 draft: false
 description: "About 1,600 agent-written pull requests on a system that trades real money. Tests became the gate, and the interesting part is the three times a green build lied."
 images:
-  - /posts/ai-agents-test-gate/test-gate-card.png
+  - /posts/ai-agents-test-gate/railroad-crossing.jpg
 categories:
   - Programming
 tags:
@@ -15,6 +15,8 @@ tags:
   - claude
   - cursor
 ---
+
+{{< figure src="/posts/ai-agents-test-gate/railroad-crossing.jpg" alt="A lowered railroad crossing barrier with glowing red lights across a wet road at dusk, a train blurring past behind it" align="center" attr="Image credit: AI-generated" >}}
 
 For the last 21 months I have been the only engineer on TopSet, a system that trades
 real money. It picks a portfolio with machine-learning models, rebalances on a
