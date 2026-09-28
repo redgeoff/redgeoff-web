@@ -29,3 +29,22 @@ li {
 ol {
   margin-bottom: 1.5em;
 }
+
+.newsletter {
+  margin-top: 2em;
+}
+
+/* The form is cross-origin, so its height can't be measured; these fit Brevo's form at each width. */
+.newsletter iframe {
+  display: block;
+  width: 540px;
+  max-width: 100%;
+  height: 440px;
+  margin: 0 auto;
+}
+
+@media (max-width: 420px) {
+  .newsletter iframe {
+    height: 480px;
+  }
+}
