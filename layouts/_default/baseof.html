@@ -13,6 +13,8 @@
 
   <meta name="description" content="{{if .IsHome}}{{ $.Site.Params.description }}{{else}}{{.Description}}{{end}}" />
 
+  <link rel="canonical" href="{{ .Permalink }}" />
+
   {{ partial "seo.html" . }}
 
   <link type="text/css"
