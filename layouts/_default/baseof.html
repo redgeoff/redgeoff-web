@@ -49,9 +49,7 @@
   <link rel="shortcut icon" href="/favicon.png">
 
   <!-- RSS -->
-  {{ range .AlternativeOutputFormats -}}
-    {{ printf `<link href="%s" rel="%s" type="%s" title="%s" />` .Permalink .Rel .MediaType.Type $.Site.Title | safeHTML }}
-  {{ end -}}
+  <link href="{{ `posts/index.xml` | absURL }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
 </head>
 <body>
   {{ partial "sidebar.html" . }}
