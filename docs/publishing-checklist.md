@@ -4,7 +4,7 @@ How to publish a post on redgeoff.com and cross-post it. Copy the checklist into
 post's PR description (or a GitHub issue) and tick items off as you go.
 
 Replace `<slug>` with the post's file name, e.g. `ai-agents-test-gate`. The post lives
-at `https://redgeoff.com/posts/<slug>/`, which is the canonical URL every cross-post
+at `https://redgeoff.com/posts/<slug>/`, which is the URL every cross-post
 points back to.
 
 | When | What |
@@ -13,7 +13,7 @@ points back to.
 | Day 0, any time | Publish on redgeoff.com, submit to HackerNoon, prep the dev.to draft |
 | Day 1, 6–8 AM PT | Hacker News, then publish on dev.to |
 | Day 2, 8–9 AM PT | LinkedIn and X |
-| When HackerNoon publishes | Check its canonical link, add it to Publications |
+| When HackerNoon publishes | Check its links back to redgeoff.com, add it to Publications |
 | A week later | Check Brevo signups |
 
 Posting times are rules of thumb. What matters most is being free to reply to comments
@@ -63,8 +63,12 @@ for a few hours after each post goes up. Medium is skipped on purpose.
       `https://redgeoff.com/posts/<slug>/` with the trailing slash. This is the
       **First Seen At** canonical link; without it, editors treat the story as
       plagiarized.
-- [ ] Backlink and distribution preference: **Backlink**. Max Readership drops the
-      canonical link, so HackerNoon's copy outranks the original in search.
+- [ ] Backlink and distribution preference: **Max Readership** by default. It adds
+      HackerNoon's RSS distribution but drops the canonical link, so HackerNoon's copy
+      will outrank the original in search. That's fine for opinion and experience posts,
+      which get most of their readers from links people share. For evergreen how-to posts
+      that people will keep searching for, choose **Backlink** so the redgeoff.com page
+      ranks instead.
 - [ ] Meta description: the front matter `description`, trimmed to 160 characters if
       needed.
 - [ ] Turn on **AI-Assisted** if AI generated any images or text or helped with editing,
@@ -112,12 +116,12 @@ for a few hours after each post goes up. Medium is skipped on purpose.
 
 ## When HackerNoon publishes
 
-- [ ] Check the live story's canonical link: view source and search for
-      `rel="canonical"`. It should point to redgeoff.com, and there should be an "Also
-      published here" link at the bottom. For the first cross-posted story (Sep 2026)
-      HackerNoon applied neither, even with First Seen At set. If it's missing, contact
-      HackerNoon support and ask them to apply the canonical link to
-      `https://redgeoff.com/posts/<slug>/`.
+- [ ] Check that the story links back to redgeoff.com: the closing "Originally published"
+      line and the call to action should both be there.
+- [ ] If you chose Backlink: view source and search for `rel="canonical"`. It should
+      point to redgeoff.com. For the first cross-posted story (Sep 2026) HackerNoon didn't
+      apply it, even with First Seen At set. If it's missing, contact HackerNoon support
+      and ask them to apply the canonical link to `https://redgeoff.com/posts/<slug>/`.
 - [ ] Open a PR adding it to the top of `content/publications.md`, using HackerNoon's
       title (they often retitle) and publish date.
 - [ ] Optional: a one-line comment on your LinkedIn post saying HackerNoon picked it up.
