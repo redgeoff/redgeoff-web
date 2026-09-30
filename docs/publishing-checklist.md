@@ -125,6 +125,11 @@ for a few hours after each post goes up. Medium is skipped on purpose.
 - [ ] Open a PR adding it to the top of `content/publications.md`, using HackerNoon's
       title (they often retitle) and publish date.
 - [ ] Optional: a one-line comment on your LinkedIn post saying HackerNoon picked it up.
+- [ ] A day or so later, look for a podcast episode of the story. In Sep 2026 it showed
+      up on HackerNoon's "Machine Learning Tech Brief" a day after the story was
+      published, hosted on share.transistor.fm. If there's one, add a
+      "[Podcast](...)" link to the same row in `content/publications.md`; it's an
+      automated narration, so it doesn't get a row of its own.
 
 ## A week later
 
