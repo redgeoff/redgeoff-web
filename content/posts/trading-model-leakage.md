@@ -3,10 +3,8 @@ title: "My first trading models knew which companies would survive"
 date: 2026-10-05T08:00:00-07:00
 draft: true
 description: "Survivorship bias and other data leaks reached my live trading models. How I found them, what an AI got wrong, and the tests that now make a leak show up."
-# TODO before merging: add the AI-generated hero image (prompt in StockTrader
-# docs/blog/blog_series_plan.md, outline 2 "Figures") and point images: at it.
-# images:
-#   - /posts/trading-model-leakage/<hero>.jpg
+images:
+  - /posts/trading-model-leakage/survivors-hero.jpg
 categories:
   - Programming
 tags:
@@ -17,6 +15,8 @@ tags:
   - ai
   - claude
 ---
+
+{{< figure src="/posts/trading-model-leakage/survivors-hero.jpg" alt="Rows of grey gravestones receding into fog under a dusk sky, with a single bright red line chart climbing through them from lower left to upper right" align="center" attr="Image credit: author, drawn with code" >}}
 
 My first live trading bot started trading real money on December 2, 2024. The models
 behind it had been trained on years of stock-market history, and every company in
