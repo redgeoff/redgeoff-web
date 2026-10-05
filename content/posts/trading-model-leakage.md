@@ -64,9 +64,9 @@ What gave it away was a backtest that was too good. I tune the model by running
 hyperparameter searches, where I backtest hundreds of versions of the model with
 different settings and compare them. In August 2025, one of those runs came back with a
 2020 that was simply impossible, and most of that year's profit came from a single
-holding. When I went to look it up, my notes from
-the investigation read: "Odd, both Yahoo and Google only have data back to 2021...
-Perhaps the symbol was renamed?"
+holding. When I went to look it up, neither Yahoo Finance nor
+Google Finance had any prices for its ticker before 2021, and my note from the
+investigation reads: "Perhaps the symbol was renamed?"
 
 It had been. It was Chesapeake Energy, which had been dropped from the S&P 500 in
 2018, did a 1-for-200 reverse split in April 2020, went bankrupt later that year, and
@@ -217,7 +217,7 @@ one of them was zero, and that version went into production along with the leak 
 
 It finally came out in April 2026, while an LLM and I were wiring a new family of
 features into the training pipeline. Earlier that same day we had found a different
-silent drop, where three new settings were decoded from a picker's configuration and
+silent drop, where three new settings were decoded from the model's configuration and
 then never passed to the model. When we looked at how much the trained models relied on each
 input (their feature importance), every engineered feature had an importance of
 exactly zero.
@@ -318,8 +318,8 @@ variable was named for adjusted prices, the column was named for adjusted prices
 every statistic downstream said adjusted, but the data was raw.
 
 The second was that it built its universe once, for the whole run, from every company
-that had ever been in the index. On the dates checked, 42 to 47% of the names in each
-cross-section weren't index members on that date. Some joined later, which is
+that had ever been in the index. On the dates checked, 42 to 47% of the names it was
+ranking on a given date weren't index members on that date. Some joined later, which is
 lookahead, since companies are added to the index because they grew. Others had left
 years before.
 
@@ -349,8 +349,8 @@ its quarterly company financials by the end of the quarter they describe. A
 company's December quarter isn't public until its annual report is filed, around the
 start of March for the largest companies, and the vendor then needs time to pick it up.
 A reporting lag of 45 trading days after the period end made those numbers "known" a
-week or two before the vendor would actually have had them. Randomization results drew
-my attention to that setting, and the vendor's own documentation settled it, as the
+week or two before the vendor would actually have had them. That setting had already stood
+out in my hyperparameter search results, and the vendor's own documentation settled it, as the
 period end is the only date it provides. So, I removed the option.
 
 EDGAR, the SEC's filing database, does record the filing date, so when I later needed historical share
