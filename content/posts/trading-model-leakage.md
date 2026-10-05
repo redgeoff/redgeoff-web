@@ -1,7 +1,7 @@
 ---
 title: "My first trading models knew which companies would survive"
-date: 2026-10-05T08:00:00-07:00
-draft: true
+date: 2026-10-05T15:38:00-07:00
+draft: false
 description: "Survivorship bias and other data leaks reached my live trading models. How I found them, what an AI got wrong, and the tests that now make a leak show up."
 images:
   - /posts/trading-model-leakage/survivors-hero.jpg
