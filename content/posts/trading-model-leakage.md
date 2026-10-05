@@ -46,10 +46,11 @@ before that date, picks its stocks, holds them until the next rebalancing date, 
 then the whole thing steps forward and repeats. That way, no single model is ever
 scored on data it was trained on. Walk-forward is necessary, but as you'll see, every
 leak in this post got through it, because each one smuggled the future in somewhere
-other than the training dates: the list of stocks, the shape of the data, or the
-prices themselves.
+other than the training dates: the list of stocks, the shape of the data, or the data
+itself, through prices adjusted the wrong way or figures dated before anyone could have
+known them.
 
-{{< figure src="/posts/trading-model-leakage/walk-forward-leaks.png" alt="Diagram of walk-forward training: four steps, each training on the past, picking on the rebalancing date and holding until the next one, moving forward in time. Below it, the three ways the leaks in this post got past walk-forward: the list of stocks (survivorship), the shape of the data (columns and rows decided by the whole run), and the prices themselves (raw where adjusted was needed, and the reverse). At the bottom, the check that catches the second: training step by step must give bit-for-bit the same picks as training all at once." >}}
+{{< figure src="/posts/trading-model-leakage/walk-forward-leaks.png" alt="Diagram of walk-forward training: four steps, each training on the past, picking on the rebalancing date and holding until the next one, moving forward in time. Below it, the three ways the leaks in this post got past walk-forward: the list of stocks (survivorship), the shape of the data (columns and rows decided by the whole run), and the data itself (prices adjusted the wrong way, or figures dated before anyone could know them). At the bottom, the check that catches the second: training step by step must give bit-for-bit the same picks as training all at once." >}}
 
 So, this post is about the leaks I shipped, the ones I caught in research before they
 shipped, and the times an AI was sure it had found a leak and was wrong. Every one of
@@ -67,10 +68,11 @@ holding. When I went to look it up, my notes from
 the investigation read: "Odd, both Yahoo and Google only have data back to 2021...
 Perhaps the symbol was renamed?"
 
-It had been. It was Chesapeake Energy, which did a 1-for-200 reverse split in April
-2020, went bankrupt later that year, eventually merged and took on a new name, and
-wasn't added to the S&P 500 until 2025. My backtest was holding it in 2020 because the
-training code only knew about the index as it stood today. (Keep that reverse split in
+It had been. It was Chesapeake Energy, which had been dropped from the S&P 500 in
+2018, did a 1-for-200 reverse split in April 2020, went bankrupt later that year, and
+eventually merged, took on a new name and rejoined the index in 2025. My backtest was
+holding it in 2020, two years after it had left the index, because the training code
+only knew about the index as it stood today. (Keep that reverse split in
 mind, as it shows up again later in this post.)
 
 Fixing survivorship bias turned out to be mostly a data problem. First, I needed the
@@ -111,7 +113,7 @@ to file its complete list of holdings with the SEC. Against those filings, my li
 that hadn't gone public yet. The AI models I'd asked to double-check the list in 2025
 hadn't caught any of this.
 
-{{< figure src="/posts/trading-model-leakage/sp500-membership-vs-spy.png" alt="Line chart from 1995 to 2026 of how many S&P 500 companies my list held on each date SPY filed its holdings with the SEC. SPY's count sits near 500 throughout. My list starts at 379 in 1995, 121 short, is 74 short in 2001 and 5 short in 2009, and matches from 2010." caption="How many S&P 500 members my list knew about, against the holdings SPY filed with the SEC. The gap is the companies my 2025 fix still left out." >}}
+{{< figure src="/posts/trading-model-leakage/sp500-membership-vs-spy.png" alt="Line chart from 1995 to 2026 of how many S&P 500 companies my list held on each date SPY filed its holdings with the SEC. SPY's count sits near 500 throughout. My list starts at 379 in 1995, 121 short, is 74 short in 2001 and 5 short in 2009, and matches from 2010." caption="How many S&P 500 members my list knew about, against the holdings SPY filed with the SEC. The gap is the least my 2025 fix still left out, since the list also held a few companies that hadn't gone public yet." >}}
 
 The second was prices. Many of the companies that failed
 outright, like Lehman Brothers, Bear Stearns, Enron and WorldCom, have no price data in
@@ -235,7 +237,7 @@ A quick primer, since everything below depends on it. A raw price is what a stoc
 actually traded at on a given day. When a company does a 20-for-1 split, every share
 becomes 20 shares worth a twentieth as much, so the raw price drops 95% overnight even
 though no one lost a cent. A reverse split is the opposite: 200 shares become one, and
-the raw price jumps 200 times. An adjusted price rewrites the history before each event
+the raw price jumps 200-fold. An adjusted price rewrites the history before each event
 so that the series is continuous, e.g. by dividing every price before a 20-for-1 split
 by 20, and it does something similar for dividends. Neither series is wrong. They
 answer different questions, and the bugs below all came from asking one series a
@@ -250,8 +252,8 @@ a data convention that never occurs in practice. Here are three more.
 In a long/short research line, which buys some stocks and bets against others by
 shorting them, so that it profits when they fall, one data source's features were
 computed from raw prices rather than adjusted ones. So, when Amazon split 20:1 in
-June 2022, the raw series showed a one-day move of about −95%. Alphabet's 20:1 split a
-month later looked the same, and Tesla's 3:1 split read as −67%.
+June 2022, the raw series showed a one-day move of about −95%. Alphabet's 20:1 split about
+six weeks later looked the same, and Tesla's 3:1 split read as −67%.
 
 A −95% day dominates any ranking of stocks against each other, and the model's
 momentum-style features, which look at how much a stock has risen or fallen recently,
@@ -273,7 +275,7 @@ prices give identical values. For a window that does straddle a split, the adjus
 ratio is the true economic return and the raw one is an artifact. In other words, the
 thing that looked like lookahead wasn't, and the thing chosen to avoid it was the bug.
 
-{{< figure src="/posts/trading-model-leakage/amzn-split-raw-vs-adjusted.png" alt="Two-panel chart of Amazon from March to September 2022. Top: the raw price falls from about $2,450 to about $125 on the June 6 split, while the adjusted price runs straight through. Bottom: the one-month return computed from raw prices drops to about minus 95 percent for 21 trading days after the split; computed from adjusted prices it stays within its normal range, and the two lines are identical outside those 21 days." caption="Amazon's 2022 split as raw and adjusted prices. The raw one-month return reads as a 95% crash for a month, which is what the model learned to short." >}}
+{{< figure src="/posts/trading-model-leakage/amzn-split-raw-vs-adjusted.png" alt="Two-panel chart of Amazon from March to September 2022. Top: the raw price falls from about $2,450 to about $125 on the June 6 split, while the adjusted price runs straight through. Bottom: the one-month return computed from raw prices drops to about minus 95 percent for 21 trading days after the split; computed from adjusted prices it stays within its normal range, and the two lines are identical outside those 21 days." caption="Amazon's 2022 split as raw and adjusted prices. The raw one-month return reads as a 95% crash for a month: the shape the model learned to treat as a good short." >}}
 
 ### Ratios Want Adjusted, Levels Want Raw
 
