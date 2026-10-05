@@ -88,6 +88,14 @@ leak is supposed to do, and it's a very unpleasant thing to watch.
 The fix reached the production training path in late September 2025, about ten months
 after the first live trade.
 
+There was one experiment from that period that I'm still glad I ran. I wondered whether
+a small, controlled leak might be acceptable: train the first stretch of the model on a
+later snapshot of the index, so that it learned from today's large companies, and then
+walk forward point-in-time from there. It gave no reliable improvement. My conclusion
+at the time was that a model trained on a fixed list of companies never sees a stock
+enter or leave the index, which leaves it less prepared for the real index, where that
+happens all the time.
+
 Unfortunately, that wasn't the end of it. A year later, in October 2026, a copy of the
 equal-weight S&P 500 that an agent and I had rebuilt from my research data beat the
 real equal-weight index fund by a margin that a copy has no business beating it by.
@@ -115,14 +123,6 @@ system, since the data the live configuration was chosen from covers 99.6% of in
 members. But it means that for my backtests before about 2016, the honest reading is
 "probably an upper bound", and fixing it properly needs a data source that still sells
 prices for companies that no longer exist.
-
-There was one experiment from that period that I'm still glad I ran. I wondered whether
-a small, controlled leak might be acceptable: train the first stretch of the model on a
-later snapshot of the index, so that it learned from today's large companies, and then
-walk forward point-in-time from there. It gave no reliable improvement. My conclusion
-at the time was that a model trained on a fixed list of companies never sees a stock
-enter or leave the index, which leaves it less prepared for the real index, where that
-happens all the time.
 
 ## So, What Did It Cost?
 
