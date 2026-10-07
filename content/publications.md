@@ -8,6 +8,7 @@ draft = false
 
 Date | Publication/Event | Post/Talk
 ---- | ----------- | ----
+Oct 7, 2026 | HackerNoon | [The Data Leaks That Made My Trading Bot Look Smarter Than It Was](https://hackernoon.com/the-data-leaks-that-made-my-trading-bot-look-smarter-than-it-was)
 Sep 29, 2026 | HackerNoon | [I Used AI Agents to Write Most of a Live-Trading Codebase: Introducing The Gate That Made It Safe](https://hackernoon.com/i-used-ai-agents-to-write-most-of-a-live-trading-codebase-introducing-the-gate-that-made-it-safe). [Podcast](https://share.transistor.fm/s/cff47737)
 Mar 1, 2024 | Level Up Coding | [Turnkey Data Analysis Using DuckDB and Metabase for PostgreSQL & CloudWatch](https://levelup.gitconnected.com/turnkey-data-analysis-using-duckdb-and-metabase-for-postgresql-cloudwatch-1255b925b7b4)
 Jul 7, 2023 | HackerNoon | [My Journey with ChatGPT for Business: Unleashing the Power of AI for Software Engineers](https://hackernoon.com/my-journey-with-chatgpt-for-business-unleashing-the-power-of-ai-for-software-engineers)
