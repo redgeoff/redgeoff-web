@@ -125,7 +125,8 @@ doesn't reproduce those runs, because it overrides the defaults with different v
 The agent had assumed that it would, and there's now a test that pins the fact that it
 doesn't.
 
-Once the coin flips came to light, I kept pushing to see if there was a way to improve
+This was tough to learn, as it had taken me a lot of time to engineer myself into those
+conclusions. Once the coin flips came to light, I kept pushing to see if there was a way to improve
 the statistical significance of my results. That question, how long it takes before you
 can tell a real edge from luck, runs through the rest of this post.
 
@@ -252,7 +253,7 @@ measures got slightly worse. Switching to daily volatility didn't move the retur
 at all, and it was adopted on the strength of the documentation and the held-out
 holdings.
 
-Then the methodology document was downloaded by hand, and its appendix confirmed both.
+Then I downloaded the methodology document by hand, and its appendix confirmed both.
 Volatility is the "standard deviation of daily price returns", and momentum is measured
 between month-ends ending two months before the rebalance, which from a late-March
 rebalance is about 42 trading days. That's exactly the lag the sweep had found! The
