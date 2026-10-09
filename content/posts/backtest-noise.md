@@ -16,7 +16,7 @@ tags:
   - claude
 ---
 
-{{< figure src="/posts/backtest-noise/seeds-hero.jpg" alt="Eleven thin grey lines wandering right from a single bright starting point on a dark background, spreading apart as they go, with one glowing red line among them ending highest" align="center" attr="Image credit: author, drawn with code" >}}
+{{< figure src="/posts/backtest-noise/seeds-hero.jpg" alt="Eleven thin gray lines wandering right from a single bright starting point on a dark background, spreading apart as they go, with one glowing red line among them ending highest" align="center" attr="Image credit: author, drawn with code" >}}
 
 This is a story about how I found out that most of the decisions in one of my research
 logs were coin flips, and about what I changed so that it wouldn't happen again.
@@ -225,7 +225,7 @@ Two bugs in the comparison itself came out along the way. It had been pitting a 
 rebalanced replica against holdings from months after the fund's last rebalance, and
 the code that matched company names to tickers had been quietly dropping as much as a
 third of the fund's holdings. For example, a check for " CO" ate the "Cos." in "Marsh &
-McLennan Cos., Inc.", which then matched nothing. After both fixes, the replica still
+McLennan Cos., Inc.," which then matched nothing. After both fixes, the replica still
 disagreed with the fund on about a third of the companies, so the difference was real
 and it was in how the replica ranked stocks.
 
@@ -254,7 +254,7 @@ at all, and it was adopted on the strength of the documentation and the held-out
 holdings.
 
 Then I downloaded the methodology document by hand, and its appendix confirmed both.
-Volatility is the "standard deviation of daily price returns", and momentum is measured
+Volatility is the "standard deviation of daily price returns," and momentum is measured
 between month-ends ending two months before the rebalance, which from a late-March
 rebalance is about 42 trading days. That's exactly the lag the sweep had found! The
 document also corrected a couple of things we had guessed wrong, including the cap on
