@@ -191,7 +191,7 @@ the reason it might close the gap. On the fund's own schedule, and weighted by t
 shares available to public investors (the free float, which is what the index uses,
 rather than every share a company has issued), the replica passed.
 
-{{< figure src="/posts/backtest-noise/gap-to-the-real-fund.png" alt="Bar chart of the gap in annual return between the rebuilt index and the real fund over six attempts: 7.41 and 6.66 percentage points on my model's monthly dates, then 5.42 on the fund's own schedule, all above a dashed limit of 3 set before the first build; then 1.93 with free-float weights, 1.50 with details found from the fund's holdings, and 0.86 with the provider's published rules, all below it." caption="The gap between the rebuilt index and the real fund's annual return, attempt by attempt, against the pre-registered limit of three percentage points. The first two attempts were scored on my model's monthly schedule, the rest on the fund's." >}}
+{{< figure src="/posts/backtest-noise/gap-to-the-real-fund.png" alt="Bar chart of the gap in annual return between the rebuilt index and the real fund over six attempts: 7.41 and 6.66 percentage points on my model's monthly dates, then 5.42 on the fund's own schedule, all above a dashed limit of 3 set before the first build; then 1.93 with free-float weights, 1.50 with the reference-date lag and daily volatility found from the fund's holdings, and 0.86 with the provider's published weight caps and buffer rule, all below it." caption="The gap between the rebuilt index and the real fund's annual return, attempt by attempt, against the pre-registered limit of three percentage points. The first two attempts were scored on my model's monthly schedule, the rest on the fund's." >}}
 
 That being said, I don't think "the thresholds never moved" settles it. A gate you're
 allowed to keep attempting is a search of its own, and with enough attempts, something
@@ -215,18 +215,36 @@ code that matched company names to tickers had been quietly dropping as much as 
 of the fund's holdings, e.g. it turned "Marsh & McLennan Cos." into something that matched
 nothing. The finding survived the second fix, which is what made me trust it.
 
-That left the ranking itself as the problem, and two details of how the index ranks
-stocks were still guesses. The agent couldn't read the index provider's methodology
-document, because the PDF refused automated downloads. So, it swept those two
-parameters and scored each setting by how many of the fund's actual holdings the
-replica matched, never by return. The sweep found a lag of about 42 trading days
-between the measurement date and the rebalance, and that daily volatility worked better
-than weekly. The best lag also did better on the filings held out of the sweep than on
-the ones it was fitted to.
+That left the ranking itself as the problem, and parts of how the index ranks stocks
+were still guesses. The agent couldn't read the index provider's methodology document,
+because the site blocked automated downloads. So, it swept the uncertain parameters and
+scored each setting by how many of the fund's actual holdings the replica matched,
+never by return.
 
-When we did read the methodology's appendix, both were in it. Momentum is
-measured up to two months before the rebalance, which from a late-March rebalance is
-about 42 trading days, and volatility is defined on "daily price returns".
+The first sweep, over how many weeks of volatility to measure, came back flat across a
+tenfold range. That turned out to be the clue: the form was wrong, not the length. A
+line in the fund's own documentation described volatility as measured on daily
+returns, not weekly, and on the holdings, one year of daily returns beat the old
+assumption on the filings held out of the sweep. A shorter window won on the filings
+it was fitted to and lost on the held-out ones, which is the signature of overfitting,
+so the agent took the round one-year value instead.
+
+The second sweep found that the index measures momentum about 42 trading days before
+each rebalance, not on the rebalance date itself. That one moved the share of matching
+companies from about two thirds to about 80%, and again it did better on the held-out
+filings than on the ones it was fitted to.
+
+Neither change was scored on the gate, and the commits report it honestly when the
+gate didn't cooperate. The lag narrowed the return gap while two secondary measures got
+slightly worse, and switching to daily volatility didn't move the return gap at all. It
+was adopted on the documentation and the held-out holdings, not on the result.
+
+Then the methodology document was downloaded by hand. Its appendix confirmed both: momentum
+runs from month-end to month-end ending two months before the rebalance, which from a
+late-March rebalance is about 42 trading days, and volatility is the "standard deviation
+of daily price returns". It also corrected things we'd guessed wrong, including the cap on how much
+any one company can weigh and the order of the rules for keeping existing holdings,
+and those brought the gap to under one percentage point.
 
 This is the most useful lesson I took from the whole exercise. Fitting the same
 parameters to returns would have picked a volatility window that, measured against the
