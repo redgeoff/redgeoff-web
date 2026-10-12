@@ -17,6 +17,8 @@ tags = [
 ]
 +++
 
+> **Update:** This tutorial is from 2017 and uses Ubuntu 16. For current steps with Ubuntu 22 and the AWS free tier, see [Run a Free VPN Server on AWS (2022 Edition)]({{< relref "free-vpn-aws-2022.md" >}}).
+
 {{< img src="/posts/vpn/network-with-vpn.png" alt="Network with VPN" align="center" >}}
 
 This tutorial will take you through the steps of setting up an EC2 instance that will run the OpenVPN Server. It will then cover how to grant and revoke access through the VPN Server.
