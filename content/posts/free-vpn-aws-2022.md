@@ -1,6 +1,6 @@
 +++
 title = "Run a Free VPN Server on AWS (2022 Edition)"
-description = "Run OpenVPN on an AWS EC2 instance"
+description = "Step-by-step: run your own OpenVPN server on a free-tier Ubuntu 22 EC2 instance instead of paying $72+/month for the AWS managed VPN, and grant or revoke access per user."
 images = ["/posts/vpn-2022/vpn-splash.jpg"]
 date = 2022-11-15T10:48:50-08:00
 draft = false

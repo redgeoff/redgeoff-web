@@ -11,7 +11,11 @@
   <title>{{ .Title }} &middot; {{ .Site.Title }}</title>
   {{- end }}
 
-  <meta name="description" content="{{if .IsHome}}{{ $.Site.Params.description }}{{else}}{{.Description}}{{end}}" />
+  <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ $.Site.Params.description }}{{ end }}" />
+
+  {{ if in (slice "taxonomy" "term") .Kind -}}
+  <meta name="robots" content="noindex, follow" />
+  {{- end }}
 
   <link rel="canonical" href="{{ .Permalink }}" />
 

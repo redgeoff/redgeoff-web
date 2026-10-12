@@ -1,6 +1,6 @@
 +++
 title = "Publications/Talks"
-description = "Run OpenVPN on an AWS EC2 instance"
+description = "Articles and talks by Geoff Cox on AI coding agents, trading models, AWS and MSON"
 images = ["/images/geoff-giant-oyster.jpg"]
 date = "2020-11-14"
 draft = false
