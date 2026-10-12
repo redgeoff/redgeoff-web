@@ -1,7 +1,7 @@
 ---
 title: "Changing only the random seed made my trading model look twice as good"
-date: 2026-10-12T08:00:00-07:00
-draft: true
+date: 2026-10-12T14:27:00-07:00
+draft: false
 description: "Eleven seeds, one model, and 14 of 21 research decisions inside the noise. How I measure noise, write the gate before the build, and check a rebuild against reality."
 images:
   - /posts/backtest-noise/seeds-hero.jpg
