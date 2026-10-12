@@ -84,7 +84,8 @@ Then we went back through the log. It recorded 21 decisions that had been made b
 comparing one run against one other run, and 14 of them rested on a smaller difference
 than that. Some were features I had thrown out as harmful, and four were features I had
 kept because they seemed to help. In other words, the evidence on file couldn't tell
-any of those 14 variants apart from the baseline, in either direction.
+any of those 14 variants apart from the run they were compared against, in either
+direction.
 
 {{< figure src="/posts/backtest-noise/decisions-vs-noise.png" alt="Horizontal bar chart of 21 keep-or-drop decisions from a research log, sorted by the size of the difference each rested on, as a multiple of what changing the random seed alone can produce. A red line marks 1x. Fourteen bars, including four decisions to keep a feature, end left of the line, inside the noise; seven extend past it." caption="Each bar is one of the 21 keep-or-drop decisions in the research log, measured by the difference it rested on, as a multiple of what the random seed alone can produce. Fourteen fall short of the line." >}}
 
@@ -96,15 +97,15 @@ since it can come out either way.
 Fortunately, none of those features were in production, so nothing needed reverting.
 But the same habit of comparing one run against one other run was also in my more
 active research lines. When we measured the noise for the daily research engine the
-same way, one recorded decision stood out. In a long/short research line, the time of
-day to trade had been chosen on a difference between 17 and 29 times smaller than that
+same way, one recorded decision stood out. In a long/short research line, which buys some
+stocks and bets against others by shorting them, the time of day to trade had been chosen on a difference between 17 and 29 times smaller than that
 engine's noise. In other words, the backtest couldn't separate the candidate times at
 all. The same measurement also showed that the worst loss from peak to trough was even
 more sensitive to the seed than the score was, and more than doubled between the
 gentlest seed and the harshest.
 
-So, what time does my live system trade at? 10 AM, and I'd defend that time without
-any backtest. The first stretch after the market opens is the most volatile part of the
+So, when does my live system trade? Shortly after the open rather than at the opening
+bell, and I'd defend that without any backtest. The first stretch after the market opens is the most volatile part of the
 day, which makes it hard to hit a price target or to model the price you'll actually
 get. That reasoning is about how the market works, and no seed can flip it.
 
@@ -114,7 +115,7 @@ The rules that came out of all this are short:
    noise.
 1. Comparisons either use the same seed on both sides, or run several seeds per side
    and compare the averages.
-1. The seed, the number of threads and the provenance of the data are stamped into every
+1. The seed, the number of threads and where the data came from are stamped into every
    recorded result, so that any number in the log can be reproduced.
 
 There was one more surprise in the details. The library we were using doesn't pick a
@@ -126,8 +127,8 @@ The agent had assumed that it would, and there's now a test that pins the fact t
 doesn't.
 
 This was tough to learn, as it had taken me a lot of time to engineer myself into those
-conclusions. Once the coin flips came to light, I kept pushing to see if there was a way to improve
-the statistical significance of my results. That question, how long it takes before you
+conclusions. Once the coin flips came to light, I kept pushing to see if there was a
+way to improve the statistical significance of my results. That question, how long it takes before you
 can tell a real edge from luck, runs through the rest of this post.
 
 ## Can I Rebuild an Index Fund From Scratch?
@@ -135,7 +136,9 @@ can tell a real edge from luck, runs through the rest of this post.
 A couple of weeks later, I wanted a fair comparison for my own model: something cheap
 and simple that I could hold it up against, over long stretches of history that
 included real bear markets. The obvious candidate was a public momentum index fund,
-which holds the stocks that have risen the most over the past year. The problem was
+which holds the stocks that have risen the most over the past year. It's one of the
+cheapest and best-known ways to buy a simple stock-picking rule, which makes it a fair
+bar for any model that picks stocks. The problem was
 that the fund only goes back to 2015, and its index's history before that is the index
 provider's own backtest.
 
@@ -143,15 +146,16 @@ So, the plan was to rebuild the index from its published rules, using my own dat
 run it back through history myself.
 
 The catch is that a rebuilt index involves a lot of choices, e.g. how far back to
-measure momentum, how to size each position and when to rebalance, and every one of
-them is a knob. If I build the benchmark, look at how my model compares, and then adjust
+measure momentum, how to size each position and when to rebalance (reshuffle the
+portfolio), and every one of them is a knob. If I build the benchmark, look at how my model compares, and then adjust
 the benchmark, I've tuned my own yardstick.
 
 To avoid that, the spec was written first and merged before any construction code
 existed. It included a gate that the rebuild had to pass over the years where the real
 fund exists: its annual return had to land within three percentage points of the
-fund's, its risk-adjusted return had to be within a fixed margin, and its
-period-by-period returns had to have a correlation of at least 0.8 with the fund's. All
+fund's, its risk-adjusted return (how much it earned for how bumpy the ride was) had to
+be within a fixed margin, and its returns had to move with the fund's, period by
+period, with a correlation of at least 0.8, where 1 means moving in lockstep. All
 three had to pass or the rebuild was disqualified. The spec even explains why it was
 written first: every parameter is a researcher degree of freedom, and my research log
 already had four results on record that had been retracted after a closer look.
@@ -237,14 +241,17 @@ the fund's actual holdings the replica matched, never by return.
 One sweep found that the index measures momentum about 42 trading days before each
 rebalance, rather than on the rebalance date itself. That moved the share of matching
 companies from about two thirds to about 80%, and it did better on the filings that
-were held out of the sweep than on the ones it was fitted to.
+were held out of the sweep, which it never saw while choosing, than on the ones it was
+fitted to.
 
-Another sweep, over how many weeks of volatility to measure, came back flat across a
+Another sweep, over how many weeks of volatility (how much a stock's price swings) to
+measure, came back flat across a
 tenfold range. That turned out to be the clue, as the form was wrong rather than the
 length. A line in the fund's own documentation described volatility as measured on
 daily returns, not weekly, and on the holdings, one year of daily returns beat the old
 assumption on the held-out filings. A shorter window won on the filings it was fitted to
-and lost on the held-out ones, which is what overfitting looks like, so the agent took
+and lost on the held-out ones, which is what overfitting looks like: a setting that fits
+the quirks of the data it was tuned on rather than the real pattern. So, the agent took
 the round one-year value instead.
 
 Neither change was chosen by the gate, and the commit messages say so when the gate
@@ -287,8 +294,10 @@ Then I reviewed it, and the review still found three wrong numbers:
    period. After the fix, it agreed with the period-by-period returns, and a regression
    test now pins that.
 1. For a company that joined the index between two filings, a fallback took its size
-   from the next filing. That's a date in the future, which is my last post in a single
-   sentence. The effect was small, but the default is now strictly point-in-time.
+   from the next filing. That's leakage, since it uses a filing nobody could have seen
+   yet, which is my last post in a single sentence. The effect was small, but the
+   default is now strictly point-in-time, i.e. it only uses what was known on each
+   date.
 1. Prices jumped at the point where one data vendor's history hands over to another's,
    so the long runs were redone on a single source, and the seam is filed as its own
    bug, which is still open.
@@ -312,7 +321,8 @@ data fix.
 No. After all of that, with a gate written in advance, passed on returns, checked
 against holdings and reviewed until the review went quiet, the reconstruction gave me 24
 years of a momentum index, most of them from before the fund existed. Over those 24
-years, its edge over the plain S&P 500 isn't statistically established.
+years, its edge over the plain S&P 500 isn't statistically established, meaning that
+it isn't large enough, compared with the noise, to rule out luck.
 
 The reconstruction did what it was built to do. When the edge you're measuring is small
 and markets are noisy, telling skill from luck takes decades, not quarters, and even 24
