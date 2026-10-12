@@ -8,6 +8,13 @@ enableInlineShortcodes = true
 
 summarylength = 10
 enableEmoji = true
+enableRobotsTXT = true
+
+[[cascade]]
+  [cascade.sitemap]
+  disable = true
+  [cascade.target]
+  kind = "{taxonomy,term}"
 
 [params]
 author = "Geoff Cox"
